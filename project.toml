@@ -1,0 +1,20 @@
+[project]
+name = "Kuantum QHack 2024"
+version = "0.1.0"
+authors = [
+  { name="Anjishnu Bose", email="anjishnu.bose@mail.utoronto.ca" },
+  { name = "Serene Shum", email = ""},
+  { name = "Praveen Jayakumar", email = ""}
+]
+description = "A library which estimates the spectrum of a Hamiltonian using statistical methods."
+readme = "README.md"
+requires-python = ">=3.8"
+
+dependencies = [
+  "numpy>=1.26.0",
+  "scipy>=1.12.0",
+  "pennylane>=0.34.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/Anjishnubose/Kuantum"
