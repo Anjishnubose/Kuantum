@@ -21,4 +21,8 @@ for j in klist
   compute g_k
 
 compute approximate CDF
+
+plot CDF
+
+use modified binary search to find ground state energy
     
