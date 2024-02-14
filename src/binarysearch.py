@@ -1,20 +1,27 @@
 import scipy as sp
-import array as arr
 from pennylane import numpy as np
 from typing import Callable
 
-#approximate cumulative distribtion function built from samples
-#outputs esimator of approximate CDF applied to x
-def acdf(X_samples: arr.array, Y_samples: arr.array, theta: arr.array, sampled_j: arr.array, N_S: int, F: float, x: float) -> complex:
-    g = 0
-    for k in N_S:
-        g += (F/N_S) * (X_samples[k] + 1j*Y_samples[k]) * np.exp(1j* (theta[k] + sampled_j[k]*x)) #build estimator for ACDF using sampled values from circuits
-    return g
 
-#certify function by majority vote procedure in LT2022
-#checks whether C(x - delta) > eta/2 or C(x - delta) < eta using sampled approximate CDF
-#N_B is number of batches in majority vote procedure, M is the total number of samples taken from the circuits
-def certify_mv(x, X_samples: arr.array, Y_samples: arr.array, theta: arr.array, sampled_j: arr.array, eta: float, F: float, N_B: int, M: int, g: Callable = acdf) -> float:
+def acdf(real_g: np.array, imag_g: np.array, sampled_index: np.array, S: float) -> Callable:
+    """
+    importance-sampled approximate cumulative distribution function built from samples
+    outputs esimator of approximate CDF applied to x
+    inputs: real_g, array of Re(Tr(rho U_k)) samples; imag_g, array of Im(Tr(rho U_k)) samples; sampled_index, array of k values of samples; S, normalization constant for importance sampling
+    """  
+    N_S = len(real_g)
+    def H(x: float):
+        g = 1/2
+        for i in N_S:
+            g += 2 * S * (real_g[i]*np.sin(sampled_index[i]*x) + imag_g[i]*np.cos(sampled_index[i]*x)) / N_S #build estimator for ACDF using sampled values from circuits
+        return g
+    return H
+
+def certify_mv(x: float, real_g: np.array, imag_g: np.array, sampled_index: np.array, eta: float, S: float, N_B: int, M: int) -> float:
+    """
+    certify function by majority vote procedure in LT2022
+    checks whether C(x - delta) > eta/2 or C(x - delta) < eta using sampled approximate CDF
+    N_B is number of batches in majority vote procedure, M is the total number of samples taken from the circuits"""
     cert_output = 0
     #initialize counter in majority vote
     c = 0
@@ -24,41 +31,42 @@ def certify_mv(x, X_samples: arr.array, Y_samples: arr.array, theta: arr.array, 
         #create X, Y, theta and j arrays for each batch
         X_r = np.zeros(N_S)
         Y_r = np.zeros(N_S)
-        theta_r = np.zeros(N_S)
-        sampled_j_r = np.zeros(N_S)
+        sampled_index_r = np.zeros(N_S)
         i = 0
         while r + N_B*i < M:
-            X_r[i] = X_samples[r + N_B*i]
-            Y_r[i] = Y_samples[r + N_B*i]
-            theta_r[i] = theta[r + N_B*i]
-            sampled_j_r[i] = sampled_j[r + N_B*i]
+            X_r[i] = real_g[r + N_B*i]
+            Y_r[i] = imag_g[r + N_B*i]
+            sampled_index_r[i] = sampled_index[r + N_B*i]
             i += 1
-        if g(X_r, Y_r, theta_r, sampled_j_r, N_S, F, x) > 3*eta/4:
+        g = acdf(X_r, Y_r, sampled_index_r, S)
+        if g(x) > 3*eta/4:
             c += 1 #add 1 to vote counter if threshold is met
     #approve if most of majority vote passes 
     if c <= N_B/2: 
         cert_output = 1
     return cert_output
 
-
-#certify subroutine only checking average value of ACDF estimate
-#certify subroutine, returns 0 if acdf(x) < eta - epsilon, 1 if acdf(x) > epsilon
-def certify_av(x: float, X_samples: arr.array, Y_samples: arr.array, theta: arr.array, sampled_j: arr.array, eta: float, N_S: int, F: float, g: Callable = acdf) -> int:
-    if g(X_samples, Y_samples, theta, sampled_j, N_S, F, x) < eta/2:
+def certify_av(x: float, real_g: np.array, imag_g: np.array, sampled_index: np.array, eta: float, S: float) -> int:
+    """
+    heuristic certify subroutine only checking average value of ACDF estimate
+    certify subroutine, returns 0 if acdf(x) < eta - epsilon, 1 if acdf(x) > epsilon
+    """
+    g = acdf(real_g, imag_g, sampled_index, S)
+    if g(x) < eta/2:
         cert_output = 0
     else:
         cert_output = 1
     return cert_output
 
 #invert CDF using either average certify subroutine or majority vote certify subroutine, default is average
-def invert_cdf(X_samples: arr.array, Y_samples: arr.array, theta: arr.array, sampled_j: arr.array, delta: float, eta: float, M: int, F: float, certify_type: str = "average", x_0: float = -np.pi/3, x_1: float = np.pi/3, N_B: int = 0, g: Callable = acdf) -> float: 
+def invert_cdf(real_g: np.array, imag_g: np.array, sampled_index: np.array, delta: float, eta: float, M: int, S: float, certify_type: str = "average", x_0: float = -np.pi/3, x_1: float = np.pi/3, N_B: int = 0, g: Callable = acdf) -> float: 
     while x_1 - x_0 > 2*delta:
         x = (x_0 + x_1)/2 #set x to be midpoint between x_0 and x_1
         #use certify subroutine to check if C(x+(2/3)delta) > 0 or C(x-(2/3)delta) < eta
         if certify_type == "average":
-            u = certify_av(x, X_samples, Y_samples, theta, sampled_j, eta, M, F, g) 
+            u = certify_av(x, real_g, imag_g, sampled_index, eta, S) 
         elif certify_type == "mv":
-            u = certify_mv(x, X_samples, Y_samples, theta, sampled_j, eta, F, N_B, M, g)
+            u = certify_mv(x, real_g, imag_g, sampled_index, eta, S, N_B, M)
         if u == 0:
             x_1 = x + 2*delta/3 #move new x_1 point closer to x if C(x+(2/3)delta) > 0
         else:
