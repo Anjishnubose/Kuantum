@@ -11,7 +11,7 @@ def get_U(H, tau, k):
     coeff = (-1.j)*tau*k
     return qml.exp(hamiltonian, coeff).matrix()
 
-def hadamard_test(U, n_qubits, measure='real', control_wires=[0]):
+def hadamard_test(U, hf_list, n_qubits, measure='real', control_wires=[0]):
     """
     Returns Hadamard test samples
     
@@ -19,6 +19,9 @@ def hadamard_test(U, n_qubits, measure='real', control_wires=[0]):
     
     #hamiltonian_matrix = qml.matrix(H)
     wires = [1 + a for a in range(n_qubits)] #target
+
+    #adds X gates to initialize psi
+    prepare_hf_gs(hf_list=hf_list, start_wire=len(control_wires))
     
     qml.Hadamard(wires=control_wires)
     qml.ControlledQubitUnitary(U, control_wires=control_wires, wires=wires)
@@ -29,6 +32,11 @@ def hadamard_test(U, n_qubits, measure='real', control_wires=[0]):
     qml.Hadamard(wires=control_wires)
 
     return qml.sample(wires=[0])
+
+def prepare_hf_gs(hf_list, start_wire = 0):
+    targets = [i for i, a in enumerate(hf_list) if a == 1]
+    for wire in targets:
+        qml.PauliX(wires=wire + start_wire)
 
 # import matplotlib.pyplot as plt
 def exp_from_samples(samples):
@@ -45,12 +53,15 @@ def get_tau(hamiltonian, norm_bound = np.pi/2):
     """
     return norm_bound/np.linalg.norm(qml.matrix(hamiltonian))
 
-def get_gk(k, nk, hamiltonian, n_qubits, tau, measure = 'real'):
+def get_gk(k, nk, hamiltonian, n_qubits, hf_list, tau, measure = 'real'):
     """
     Run hadamard test and get samples and ancilla expectation.
 
     measure: 'real' / 'imag'
+
+    intializes hf basis ground state
     
+
     """
     
     dev = qml.device("default.qubit", wires=n_qubits+1, shots=nk)
@@ -58,5 +69,5 @@ def get_gk(k, nk, hamiltonian, n_qubits, tau, measure = 'real'):
 
     U = get_U(H=hamiltonian, tau=tau, k=k)
 
-    samples = full_qnode(U, n_qubits=n_qubits, measure=measure)
+    samples = full_qnode(U, hf_list = hf_list, n_qubits=n_qubits, measure=measure)
     return samples, exp_from_samples(samples)
