@@ -1,4 +1,4 @@
-import heaviside as hv
+from . import heaviside as hv
 from pennylane import numpy as np
 
 

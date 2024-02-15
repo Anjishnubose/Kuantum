@@ -1,6 +1,4 @@
-import scipy as sp
 from pennylane import numpy as np
-import MonteCarlo as mc
 from typing import Callable
 
 def acdf(real_g: np.array, imag_g: np.array, sampled_index: np.array, S: float) -> Callable:
