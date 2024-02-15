@@ -15,28 +15,21 @@ def acdf(real_g: np.array, imag_g: np.array, sampled_index: np.array, S: float) 
         return g
     return H
 
-def certify_mv(x: float, real_g: np.array, imag_g: np.array, sampled_index: np.array, eta: float, S: float, N_B: int, M: int) -> int:
+def certify_mv(x: float, real_g: np.array, imag_g: np.array, sampled_index: np.array, eta: float, S: float, N_B: int) -> int:
     """
     certify function by majority vote procedure in LT2022
     checks whether C(x - delta) > eta/2 or C(x - delta) < eta using sampled approximate CDF
     N_B is number of batches in majority vote procedure, M is the total number of samples taken from the circuits
     """
+    M = len(real_g)
     cert_output = 0
     #initialize counter in majority vote
     c = 0
-    #number of samples per batch
-    N_S = np.ceil(M/N_B)
-    for r in N_B:
-        #create X, Y, theta and j arrays for each batch
-        X_r = np.zeros(N_S)
-        Y_r = np.zeros(N_S)
-        sampled_index_r = np.zeros(N_S)
-        i = 0
-        while r + N_B*i < M:
-            X_r[i] = real_g[r + N_B*i]
-            Y_r[i] = imag_g[r + N_B*i]
-            sampled_index_r[i] = sampled_index[r + N_B*i]
-            i += 1
+    for r in range(N_B):        
+        X_r = real_g[r:-1:N_B]
+        Y_r = imag_g[r:-1:N_B]
+        sampled_index_r = sampled_index[r:-1:N_B]
+
         g = acdf(X_r, Y_r, sampled_index_r, S)
         if g(x) > 3*eta/4:
             c += 1 #add 1 to vote counter if threshold is met
@@ -73,3 +66,15 @@ def invert_cdf(real_g: np.array, imag_g: np.array, sampled_index: np.array, delt
         else:
             x_0 = x - 2*delta/3 #move new x_0 point closer to x if C(x-(2/3)delta) < eta
     return (x_0 + x_1)/2
+
+
+if __name__ == "__main__":
+    d = 100
+    real_gs = np.random.rand(d+1)
+    imag_gs = np.random.rand(d+1)
+    sampled_indices = np.array(range(1, 2*d+3, 2) )
+    
+    acdf_ = acdf(real_gs, imag_gs, sampled_indices, 1.0)
+    # print(acdf_(1.0))
+    x = certify_av(1.0, real_gs, imag_gs, sampled_indices, 0.1, 1.0)
+    print(x)
