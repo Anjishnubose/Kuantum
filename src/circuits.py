@@ -71,3 +71,41 @@ def get_gk(k, nk, hamiltonian, n_qubits, hf_list, tau, measure = 'real'):
 
     samples = full_qnode(U, hf_list = hf_list, n_qubits=n_qubits, measure=measure)
     return samples, exp_from_samples(samples)
+
+def get_rs_lists(nk_list, hamiltonian, n_qubits, hf_list, tau):
+    """
+    MAIN FUNCTION, USE THIS!
+
+    returns r_list, s_list, k_list
+    
+    """
+
+    r_list = np.array([])
+    s_list = np.array([])
+    index_list = np.array([])
+
+    for i, nk in enumerate(nk_list):
+        k = 2*i + 1
+
+        if nk == 0:
+            continue
+        if nk == 1:
+            r, expz = get_gk(k, nk, hamiltonian=hamiltonian, n_qubits=n_qubits, hf_list=hf_list, tau=tau, measure='real')
+            r_list = np.concatenate((r_list, [r]))
+
+            s, expz = get_gk(k, nk, hamiltonian=hamiltonian, n_qubits=n_qubits, hf_list=hf_list, tau=tau, measure='imag')
+            s_list = np.concatenate((s_list, [s]))
+
+            indexes = [k]*nk
+            index_list = np.concatenate((index_list, indexes))
+        else:
+            r, expz = get_gk(k, nk, hamiltonian=hamiltonian, n_qubits=n_qubits, hf_list=hf_list, tau=tau, measure='real')
+            r_list = np.concatenate((r_list, r))
+
+            s, expz = get_gk(k, nk, hamiltonian=hamiltonian, n_qubits=n_qubits, hf_list=hf_list, tau=tau, measure='imag')
+            s_list = np.concatenate((s_list, s))
+
+            indexes = [k]*nk
+            index_list = np.concatenate((index_list, indexes))
+    
+    return r_list, s_list, index_list
