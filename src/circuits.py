@@ -104,7 +104,7 @@ def get_rs_lists(nk_list, hamiltonian, n_qubits, hf_list, tau):
 
         if nk == 0:
             continue
-        if nk == 1:
+        if nk == 1: #when shot count is 1, it returns a single number instead of a list smh
             r, expz = get_gk(k, nk, hamiltonian=hamiltonian, n_qubits=n_qubits, hf_list=hf_list, tau=tau, measure='real')
             r_list = np.concatenate((r_list, [r]))
 
