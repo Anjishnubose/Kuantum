@@ -1,5 +1,6 @@
 import scipy as sp
 from pennylane import numpy as np
+import MonteCarlo as mc
 from typing import Callable
 
 def acdf(real_g: np.array, imag_g: np.array, sampled_index: np.array, S: float) -> Callable:
@@ -10,9 +11,7 @@ def acdf(real_g: np.array, imag_g: np.array, sampled_index: np.array, S: float) 
     """  
     N_S = len(real_g)
     def H(x: float):
-        g = 1/2
-        for i in N_S:
-            g += 2 * S * (real_g[i]*np.sin(sampled_index[i]*x) + imag_g[i]*np.cos(sampled_index[i]*x)) / N_S #build estimator for ACDF using sampled values from circuits
+        g = 1/2 + 2 * S * (np.sum(real_g*np.sin(sampled_index*x)) + np.sum(imag_g*np.cos(sampled_index*x))) / N_S #build estimator for ACDF using sampled values from circuits
         return g
     return H
 
