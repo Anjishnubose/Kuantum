@@ -12,7 +12,7 @@ args:
     beta: float - parameter of the heaviside function
 """
 def Metropolis(N_thermalization: int, N_sample: int, k_max: int, 
-                beta: float, reduced_range:int = 51, move_range:int = 101) -> dict:
+                beta: float, reduced_range:int = 51, move_range:int = 101) -> np.array:
     """
     This function uses the Metropolis algorithm to sample from the periodic Heaviside function.
     """
