@@ -2,10 +2,28 @@
 
 import pennylane as qml
 import pennylane.numpy as np
+import pickle as pkl
+import os
 
 from openfermion import get_ground_state
 
-def get_hamiltonian(mol ='H2', compute_gs = False):
+def get_hamiltonian(mol ='H2', compute_gs = False, load = True, save = True, verbose=True):
+    if load:
+        #loading saved Hamiltonian
+        dirname = os.path.dirname(__file__)
+        directory = os.path.join(dirname, '../hamiltonians/')
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        
+        try:
+            with open(directory + '{}.pkl'.format(mol), 'rb') as file:
+                H, n_qubits, hf_list, gs_energy = pkl.load(file)
+            if verbose: print('Loaded Hamiltonian at {}{}.pkl, yayy!'.format(directory, mol))
+            return H, n_qubits, hf_list, gs_energy
+        
+        except:
+            if verbose: print('Unable to load {}.pkl! Attempting to generate...\n'.format(mol))
+    
     if mol == 'H2':
         d = 0.74 #ground state separation
         symbols, coordinates = (['H', 'H'], np.array([0., 0., -d/2, 0., 0., d/2]))
@@ -68,5 +86,20 @@ def get_hamiltonian(mol ='H2', compute_gs = False):
         gs_energy, gs_state = get_ground_state(H.sparse_matrix())
     else:
         gs_energy = None
+    
+    if save:
+        #loading saved Hamiltonian
+        dirname = os.path.dirname(__file__)
+        directory = os.path.join(dirname, '../hamiltonians/')
+        #directory = '../hamiltonians/'
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        
+        try:
+            with open(directory + '{}.pkl'.format(mol), 'wb') as file:
+                pkl.dump((H, n_qubits, hf_list, gs_energy), file, protocol=pkl.HIGHEST_PROTOCOL)
+            if verbose: print('Saved Hamiltonian at {}{}.pkl'.format(directory, mol))
+        except:
+            raise 'Unable to save hamiltonian'
     
     return H, n_qubits, hf_list, gs_energy
