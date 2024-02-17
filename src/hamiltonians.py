@@ -7,7 +7,12 @@ import os
 
 from openfermion import get_ground_state
 
-def get_hamiltonian(mol ='H2', compute_gs = False, load = True, save = True, verbose=True):
+def hamiltonian_norm(H :qml.qchem.hamiltonian, norm='1'):
+    if norm == '1':
+        return sum(abs(H.coeff()))
+    return
+
+def get_hamiltonian(mol ='H2', compute_gs = False, load = True, save = False, verbose=True):
     if load:
         #loading saved Hamiltonian
         dirname = os.path.dirname(__file__)

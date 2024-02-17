@@ -85,6 +85,7 @@ def get_gk(k, nk, hamiltonian, n_qubits, hf_list, tau, measure = 'real'):
     U = get_U(H=hamiltonian, tau=tau, k=k)
 
     samples = circuit_qnode(U, n_qubits=n_qubits, hf_list = hf_list, measure=measure)
+    #qml.draw_mpl(circuit_qnode)(U, n_qubits=n_qubits, hf_list = hf_list, measure=measure) #to draw circuit
     return samples, exp_from_samples(samples)
 
 def get_rs_lists(nk_list, hamiltonian, n_qubits, hf_list, tau):
@@ -99,9 +100,10 @@ def get_rs_lists(nk_list, hamiltonian, n_qubits, hf_list, tau):
     s_list = np.array([])
     index_list = np.array([])
 
-    for i, nk in enumerate(nk_list):
+    for i, samples in enumerate(nk_list):
         k = 2*i + 1
 
+        nk = int(samples)
         if nk == 0:
             continue
         if nk == 1: #when shot count is 1, it returns a single number instead of a list smh
