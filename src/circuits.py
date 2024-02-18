@@ -86,7 +86,7 @@ def get_gk(k, nk, hamiltonian, n_qubits, hf_list, tau, measure = 'real'):
 
     samples = circuit_qnode(U, n_qubits=n_qubits, hf_list = hf_list, measure=measure)
     #qml.draw_mpl(circuit_qnode)(U, n_qubits=n_qubits, hf_list = hf_list, measure=measure) #to draw circuit
-    return samples, exp_from_samples(samples)
+    return 1-2*np.array(samples), exp_from_samples(samples)
 
 def get_rs_lists(nk_list, hamiltonian, n_qubits, hf_list, tau):
     """
