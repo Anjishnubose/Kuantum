@@ -1,0 +1,19 @@
+##### maximum value of k for the heaviside fourier series
+'sampling k':
+  ##### numper of samples for the fourier series
+  'num_samples': 10_000
+  ##### number of iterations for monte carlo simlutaion to thermalize
+  'num_thermalization': 10_000
+  ##### beta value for the heaviside fourier series
+  'beta': 1_000_000
+##### parameters for the binary search
+'binary search':
+  ##### tolerance of the x-value error in the binary search
+  'delta': 0.001
+  ##### tolerance for the y-value jump in the binary search
+  'eta': 0.5
+  ##### certification type
+  'certification': 'mv'
+##### pickle file which stores a pennylane Hamiltonian object, and a trial state (in the form of a vector)
+##### the file has to be saved in the hamiltonians folder
+'hamiltonian file': 'H2.pkl'

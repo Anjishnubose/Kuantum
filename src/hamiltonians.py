@@ -4,6 +4,7 @@ import pennylane as qml
 import pennylane.numpy as np
 import pickle as pkl
 import os
+from pathlib import Path
 
 from openfermion import get_ground_state
 
@@ -108,3 +109,37 @@ def get_hamiltonian(mol ='H2', compute_gs = False, load = True, save = False, ve
             raise 'Unable to save hamiltonian'
     
     return H, n_qubits, hf_list, gs_energy
+
+"""
+function to read a saved hamiltonian from file.
+"""
+def read_hamiltonian(file_name: str):
+    ##### loading saved Hamiltonian
+    directory = Path('../hamiltonians/')
+    directory = directory / file_name
+    print(directory)
+    try:
+        with open(directory, 'rb') as file:
+            hamiltonian, state = pkl.load(file)
+        print('Loaded Hamiltonian at {}, yayy!'.format(directory))
+        return hamiltonian, state
+    
+    except:
+        print('Unable to load {}'.format(directory))
+        return None
+    
+"""
+Decomposes the Hamiltonian into a sum of multi-qubit Pauli matrices.
+"""
+def decompose(H: qml.Hamiltonian, norm_bound: float = np.pi/2, error_tol: float = 1E-2):
+
+    coefficients, operators = qml.pauli_decompose(H)
+    n_qubits = H.num_wires
+    ##### bound on the norm of the Hamiltonian
+    Lambda = np.sum(np.abs(coefficients))
+    ##### how much to scale the Hamiltonian by to get its eigenvalues in the range [-norm_bound, norm_bound]
+    tau = norm_bound / (Lambda + error_tol)
+    return {'coefficients': coefficients, 'operators': operators, 
+            'tau': tau, 'lambda': Lambda,
+            'num_qubits': n_qubits}
+    
