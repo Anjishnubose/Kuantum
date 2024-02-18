@@ -48,7 +48,9 @@ def certify_av(x: float, real_g: np.array, imag_g: np.array, sampled_index: np.a
         cert_output = 1
     return cert_output
 
-def invert_cdf(real_g: np.array, imag_g: np.array, sampled_index: np.array, delta: float, eta: float, S: float, certify_type: str = "average", x_0: float = -np.pi/2, x_1: float = np.pi/2, N_B: int = 0, g: Callable = acdf) -> float: 
+def invert_cdf(real_g: np.array, imag_g: np.array, sampled_index: np.array, delta: float, eta: float, 
+            S: float, certify_type: str = "mv", 
+            x_0: float = -np.pi, x_1: float = np.pi, N_B: int = 10, g: Callable = acdf) -> float: 
     """
     invert CDF using either average certify subroutine or majority vote certify subroutine (default is average)
     """
