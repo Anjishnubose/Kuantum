@@ -1,4 +1,4 @@
-from . import heaviside as hv
+import heaviside as hv
 from pennylane import numpy as np
 
 
@@ -32,8 +32,8 @@ def Metropolis(N_thermalization: int, N_sample: int, k_max: int,
     ##### run the Metropolis algorithm
     print(f"Running Metropolis algorithm for {N_sample} samples starting at {k_current}.")
     for step in range(N_thermalization+N_sample):
-        if step%1000 == 0:
-            print(f"Step {step} of {N_sample}.")
+        # if step%1000 == 0:
+        #     print(f"Step {step} of {N_sample}.")
         ##### propose a new state within move_range of the current state.
         j_new = int(j_current + np.random.randint(-min(j_current, move_range), min(d-j_current, move_range)))
         k_new = int(2*j_new+1)
@@ -45,16 +45,15 @@ def Metropolis(N_thermalization: int, N_sample: int, k_max: int,
         p_accept = min(1, p_accept)
         ##### accept or reject the new state randomly
         if np.random.rand() < p_accept:
-            ##### updating the sample count of the new state
-            if step >= N_thermalization:
-                sample[int(j_new)] += 1
-                
+            ##### change is accepted!
             j_current = np.copy(j_new)
             k_current = np.copy(k_new)
             accepted += 1
-        else:
+        ##### updating the sample count of the new state       
+        if step >= N_thermalization:
             sample[int(j_current)] += 1
     ##### returning the samples
+    print(f"Sampling finished with acceptance rate: {accepted/(N_thermalization+N_sample)}.")
     return sample
 
 
