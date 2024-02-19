@@ -116,18 +116,14 @@ function to read a saved hamiltonian from file.
 """
 def read_hamiltonian(file_name: str):
     ##### loading saved Hamiltonian
-    directory = Path('../hamiltonians/')
-    directory = directory / file_name
-    print(directory)
-    try:
-        
-        with open(directory, 'rb') as file:
+    try: 
+        with open(file_name, 'rb') as file:
             hamiltonian, state = pkl.load(file)
-        print('Loaded Hamiltonian at {}, yayy!'.format(directory))
+        print('Loaded Hamiltonian at {}, yayy!'.format(file_name))
         return hamiltonian, state
     
     except:
-        print('Unable to load {}'.format(directory))
+        print('Unable to load {}'.format(file_name))
         return None
     
 """

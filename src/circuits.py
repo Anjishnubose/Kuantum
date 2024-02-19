@@ -1,7 +1,7 @@
 import pennylane as qml
 import pennylane.numpy as np
 
-import PauliProducts
+# import PauliProducts
 import LCUSampling
 
 #full H exponential
