@@ -1,7 +1,7 @@
 import pennylane as qml
 import pennylane.numpy as np
 
-# import PauliProducts
+import pauli
 import LCUSampling
 
 #full H exponential
@@ -35,7 +35,7 @@ def hadamard_test_randomized(H, n_qubits, n_samples, l_samples, t: float, r: int
     
     """
 
-    rotation_pauli, rotation_pauli_signs, pauli_product_red, pauli_product_phase = PauliProducts.reorder_pauli_rotation_products(H, n_samples, l_samples)
+    rotation_pauli, rotation_pauli_signs, pauli_product_red, pauli_product_phase = pauli.reorder_pauli_rotation_products(H, n_samples, l_samples)
 
     #create vector for angles
     angles = np.array(len(n_samples))
@@ -131,7 +131,8 @@ def get_gk(k, nk, hamiltonian, n_qubits, hf_list, tau, measure = 'real'):
     #qml.draw_mpl(circuit_qnode)(U, n_qubits=n_qubits, hf_list = hf_list, measure=measure) #to draw circuit
     return 1-2*np.array(samples), exp_from_samples(samples)
 
-def get_randomized_gk(H, k: int, n_qubits, hf_list, tau: float, measure = "real", N_thermalization: int = 10000, reduced_range: int = 10, move_range: int = 20, n_max: int = 200, r: int=1000):
+def get_randomized_gk(H, k: int, nk:int, n_qubits: int, hf_list, samples_l, samples_n, t, r, measure = "real"):
+                    # N_thermalization: int = 10000, reduced_range: int = 10, move_range: int = 20, n_max: int = 200, r: int=1000):
     """
     Run state prep, hadamard test and get samples and ancilla expectation.
 
@@ -143,16 +144,17 @@ def get_randomized_gk(H, k: int, n_qubits, hf_list, tau: float, measure = "real"
     """
 
     #list of Hamiltonian term coefficients (assuming Hamiltonian is written as linear combination of Paulis)
-    pls = H.terms()[0]
-    t = -k * tau * np.sum(np.abs(pls))
+    # pls = H.terms()[0]
+    # t = -k * tau * np.sum(np.abs(pls))
 
-    n_samples, l_samples = LCUSampling.LCU(r, t, pls, N_thermalization, reduced_range, n_max)
+    # n_samples, l_samples = LCUSampling.LCU(r, t, pls, N_thermalization, reduced_range, n_max)
     
-    dev = qml.device("default.qubit", wires=n_qubits+1, shots=1)
+    
+    dev = qml.device("default.qubit", wires=n_qubits+1, shots=nk)
     circuit_qnode = qml.QNode(make_circuit_randomized,dev)
 
-    samples = circuit_qnode(H, n_qubits, hf_list, n_samples, l_samples, t, r, measure = measure)
-    return 1-2*np.array(samples), exp_from_samples(samples)
+    samples = circuit_qnode(H, n_qubits, hf_list, samples_n, samples_l, t, r, measure = measure)
+    return 1-2*np.array(samples) #, exp_from_samples(samples)
 
 def get_rs_lists(nk_list, hamiltonian, n_qubits: int, hf_list, tau: float, r: int):
     """
