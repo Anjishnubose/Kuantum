@@ -35,7 +35,7 @@ def StatisticalPhaseEstimation(inputs: dict, to_save: bool = False, save_path: s
         if num_k >0:
             ##### parameters for the LCU sampling depending on the k-value
             t_k = -k*decomposition['tau']*decomposition['lambda']
-            r_k = 2*t_k*t_k
+            r_k = int(np.ceil(2*t_k*t_k))
             ##### LCU sampling to get a list of l-values for each k. 
             ##### Each l-value correspond to a Pauli word in the decomposition of the Hamiltonian.
             samples_n, samples_l = LCU(r_k, t_k, decomposition['coefficients'],
