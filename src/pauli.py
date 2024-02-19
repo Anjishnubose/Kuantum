@@ -1,6 +1,7 @@
 #utils and methods with Pauli
 import pennylane as qml
 import pennylane.numpy as np
+import LCUSampling
 
 def multiply_pauli_list_with_phase(pwds):
     """
@@ -46,7 +47,7 @@ def reorder_pauli_rotation_products(H, l_list, n_list):
     pauli_product_red = qml.Identity(wires = n_qubits) #multiplied Pauli word
     pauli_product_phase = 1
 
-    for r, nr in enumerate(n_list):
+    for nr in enumerate(n_list):
         #commute rotation through to start
         rotation_pauli.append(pauli_list[0])
 
@@ -61,3 +62,26 @@ def reorder_pauli_rotation_products(H, l_list, n_list):
         pauli_list = pauli_list[nr + 1:]
 
     return rotation_pauli, rotation_pauli_signs, pauli_product_red, pauli_product_phase
+
+def full_pauli_rotation(H, rotation_pauli: np.array, rotation_pauli_signs: np.array, term_degree: np,array, t: float, r: int):
+    """
+    Inputs/parameters: Hamiltonian H, rotation_pauli list of Paulis for the Pauli rotations, rotation_pauli_signs list of -1/+1 signs for phases of Pauli rotations, term_degree: array of Taylor series term degree corresponding to each Pauli rotation, t evolution time, r number of Taylor series terms sampled 
+    Outputs operator that is the product of all Pauli rotations with proper phases
+    """
+    #create vector for angles
+    angles = np.array(len(term_degree))
+    for i in angles:
+        angles[i] = LCUSampling.theta(term_degree[i], t, r)
+    n_qubits = len(H.wires)
+
+    #create array storing Pauli rotations
+    rotations = np.array(len(rotation_pauli))
+    for r in len(rotation_pauli):
+        rotations[r] = qml.exp(rotation_pauli, rotation_pauli_signs[r] * angles[r]* 1j)
+
+    #multiply all Pauli rotations together
+    multiplied_rotation = qml.prod(*rotations)
+
+    return multiplied_rotation
+
+    
