@@ -29,7 +29,7 @@ def prepare_initial_state(state_type = 'hf', start_wire=1, **kwargs):
         prepare_hf_gs(hf_list=hf_list, start_wire=start_wire)
     return
 
-def hadamard_test_randomized(H, n_qubits, n_samples, l_samples, t: float, r: int, term_degree: np.array, measure = 'real', control_wires = [0]):
+def hadamard_test_randomized(H, n_qubits, n_samples, l_samples, t: float, r: int, measure = 'real', control_wires = [0]):
     """
     Returns Hadamard test samples for randomized Hamiltonian evolution implementation
     
@@ -38,9 +38,9 @@ def hadamard_test_randomized(H, n_qubits, n_samples, l_samples, t: float, r: int
     rotation_pauli, rotation_pauli_signs, pauli_product_red, pauli_product_phase = PauliProducts.reorder_pauli_rotation_products(H, n_samples, l_samples)
 
     #create vector for angles
-    angles = np.array(len(term_degree))
+    angles = np.array(len(n_samples))
     for i in angles:
-        angles[i] = LCUSampling.theta(term_degree[i], t, r)
+        angles[i] = LCUSampling.theta(n_samples[i], t, r)
 
     #create array to store Pauli rotations
     rotations = np.array(len(rotation_pauli))
@@ -102,6 +102,14 @@ def make_circuit(U, n_qubits, hf_list, measure='real'):
 
     return qml.sample(wires=[0])
 
+def make_circuit_randomized(H, n_qubits, hf_list, n_samples, l_samples, t: float, r: int, measure = 'real'):
+    control_wires = [0]
+    #adds X gates to initialize psi
+    prepare_initial_state(state_type='hf', hf_list=hf_list, start_wire=len(control_wires))
+    hadamard_test_randomized(H, n_qubits, n_samples, l_samples, t, r, measure, control_wires = control_wires)
+
+    return qml.sample(wires=[0])
+
 
 def get_gk(k, nk, hamiltonian, n_qubits, hf_list, tau, measure = 'real'):
     """
@@ -141,11 +149,9 @@ def get_randomized_gk(H, k: int, n_qubits, hf_list, tau: float, measure = "real"
     n_samples, l_samples = LCUSampling.LCU(r, t, pls, N_thermalization, reduced_range, n_max)
     
     dev = qml.device("default.qubit", wires=n_qubits+1, shots=1)
-    circuit_qnode = qml.QNode(make_circuit,dev)
+    circuit_qnode = qml.QNode(make_circuit_randomized,dev)
 
-    U = get_randomized_U(H, n_samples, l_samples, t, r)
-
-    samples = circuit_qnode(U, n_qubits=n_qubits, hf_list = hf_list, measure=measure)
+    samples = circuit_qnode(H, n_qubits, hf_list, n_samples, l_samples, t, r, measure = measure)
     return 1-2*np.array(samples), exp_from_samples(samples)
 
 def get_rs_lists(nk_list, hamiltonian, n_qubits: int, hf_list, tau: float, r: int):
