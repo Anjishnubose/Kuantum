@@ -3,3 +3,5 @@
 src/__pycache__/__init__.cpython-39.pyc
 src/__pycache__/__init__.cpython-39.pyc
 *.pyc
+src/__pycache__/__init__.cpython-39.pyc
+src/__pycache__/circuits.cpython-39.pyc

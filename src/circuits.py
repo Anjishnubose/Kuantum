@@ -148,8 +148,7 @@ def get_randomized_gk(H, k: int, nk:int, n_qubits: int, hf_list, samples_l, samp
     # t = -k * tau * np.sum(np.abs(pls))
 
     # n_samples, l_samples = LCUSampling.LCU(r, t, pls, N_thermalization, reduced_range, n_max)
-    
-    
+
     dev = qml.device("default.qubit", wires=n_qubits+1, shots=nk)
     circuit_qnode = qml.QNode(make_circuit_randomized,dev)
 

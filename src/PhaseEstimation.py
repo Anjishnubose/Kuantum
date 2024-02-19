@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import pickle as pkl
 
 from heaviside import normalization_constant
-from circuits import get_gk
+from circuits import get_randomized_gk
 from hamiltonians import read_hamiltonian, decompose
 from binarysearch import acdf, invert_cdf
 from MonteCarlo import Metropolis
@@ -41,15 +41,25 @@ def StatisticalPhaseEstimation(inputs: dict, to_save: bool = False, save_path: s
             samples_n, samples_l = LCU(r_k, t_k, decomposition['coefficients'],
                                         inputs['sampling Unitaries']['num_thermalization'])
             ##### Running the randomly sample LCU decomposition of the time evolution on a quantum circuit.
-            r = get_gk(k, num_k, hamiltonian=hamiltonian, 
+            r = get_randomized_gk(hamiltonian = hamiltonian,
+                                k = k,
+                                nk = num_k,
                                 n_qubits=decomposition['num_qubits'], 
                                 hf_list=state, 
-                                tau=decomposition['tau'], 
+                                samples_l = samples_l,
+                                samples_n = samples_n,
+                                t = t_k,
+                                r = r_k,
                                 measure='real')
-            s = get_gk(k, num_k, hamiltonian=hamiltonian, 
+            s = get_randomized_gk(hamiltonian = hamiltonian,
+                                k = k,
+                                nk = num_k,
                                 n_qubits=decomposition['num_qubits'], 
                                 hf_list=state, 
-                                tau=decomposition['tau'], 
+                                samples_l = samples_l,
+                                samples_n = samples_n,
+                                t = t_k,
+                                r = r_k,
                                 measure='imag')
             if num_k==1:
                 r_list.extend(np.array([r]))
