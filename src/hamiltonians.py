@@ -22,13 +22,14 @@ def get_hamiltonian(mol ='H2', compute_gs = False, load = True, save = False, ve
             os.makedirs(directory)
         
         try:
+            
             with open(directory + '{}.pkl'.format(mol), 'rb') as file:
-                H, n_qubits, hf_list, gs_energy = pkl.load(file)
+                H, hf_list = pkl.load(file)
             if verbose: print('Loaded Hamiltonian at {}{}.pkl, yayy!'.format(directory, mol))
-            return H, n_qubits, hf_list, gs_energy
+            return H, hf_list
         
         except:
-            if verbose: print('Unable to load {}.pkl! Attempting to generate...\n'.format(mol))
+            if verbose: print('Unable to load {}.pkl at {}! Attempting to generate...\n'.format(mol, directory))
     
     if mol == 'H2':
         d = 0.74 #ground state separation
@@ -103,12 +104,12 @@ def get_hamiltonian(mol ='H2', compute_gs = False, load = True, save = False, ve
         
         try:
             with open(directory + '{}.pkl'.format(mol), 'wb') as file:
-                pkl.dump((H, n_qubits, hf_list, gs_energy), file, protocol=pkl.HIGHEST_PROTOCOL)
+                pkl.dump((H, hf_list), file, protocol=pkl.HIGHEST_PROTOCOL)
             if verbose: print('Saved Hamiltonian at {}{}.pkl'.format(directory, mol))
         except:
             raise 'Unable to save hamiltonian'
     
-    return H, n_qubits, hf_list, gs_energy
+    return H, hf_list
 
 """
 function to read a saved hamiltonian from file.
@@ -119,6 +120,7 @@ def read_hamiltonian(file_name: str):
     directory = directory / file_name
     print(directory)
     try:
+        
         with open(directory, 'rb') as file:
             hamiltonian, state = pkl.load(file)
         print('Loaded Hamiltonian at {}, yayy!'.format(directory))
