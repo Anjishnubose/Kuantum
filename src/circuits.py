@@ -1,7 +1,7 @@
 import pennylane as qml
 import pennylane.numpy as np
 
-import PauliProducts
+import pauli
 import LCUSampling
 
 #full H exponential
@@ -35,7 +35,7 @@ def hadamard_test_randomized(H, n_qubits, n_samples, l_samples, t: float, r: int
     
     """
 
-    rotation_pauli, rotation_pauli_signs, pauli_product_red, pauli_product_phase = PauliProducts.reorder_pauli_rotation_products(H, n_samples, l_samples)
+    rotation_pauli, rotation_pauli_signs, pauli_product_red, pauli_product_phase = pauli.reorder_pauli_rotation_products(H, n_samples, l_samples)
 
     #create vector for angles
     angles = np.array(len(n_samples))
