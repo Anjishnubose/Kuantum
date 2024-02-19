@@ -30,7 +30,7 @@ def Metropolis(N_thermalization: int, N_sample: int, k_max: int,
     ##### initialize the number of accepted states
     accepted = 0
     ##### run the Metropolis algorithm
-    print(f"Running Metropolis algorithm for {N_sample} samples starting at {k_current}.")
+    print(f"Running Metropolis algorithm for {N_sample} samples starting at k={k_current}.")
     for step in range(N_thermalization+N_sample):
         # if step%1000 == 0:
         #     print(f"Step {step} of {N_sample}.")
@@ -53,7 +53,7 @@ def Metropolis(N_thermalization: int, N_sample: int, k_max: int,
         if step >= N_thermalization:
             sample[int(j_current)] += 1
     ##### returning the samples
-    print(f"Sampling finished with acceptance rate: {accepted/(N_thermalization+N_sample)}.")
+    print(f"Sampling ks finished with acceptance rate: {accepted/(N_thermalization+N_sample)}.")
     return sample
 
 

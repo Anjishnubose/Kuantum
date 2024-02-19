@@ -55,7 +55,7 @@ def LCU(r: int, t: float, pls: np.array,
     l_samples = []
     ##### initialize the number of accepted states
     accepted = 0
-    print(f"Running Metropolis algorithm for {r} samples starting at {current_n}.")
+    print(f"Running Metropolis algorithm for {r} samples starting at n = {current_n}.")
     for step in range(N_thermalization+r):
         ##### propose a new state within move_range of the current state.
         new_n = int(2*(current_n/2 + np.random.randint(-min(current_n/2-1, move_range), min(n_max/2-current_n/2, move_range))))
@@ -73,7 +73,7 @@ def LCU(r: int, t: float, pls: np.array,
             ##### sampling n+1 l-values from the probability distribution
             ls = sample_from_prob(probabilities, current_n+1)
             l_samples.extend(ls)
-    print(f"Sampling finished with acceptance rate: {accepted/(N_thermalization+r)}.")
+    print(f"Sampling ns finished with acceptance rate: {accepted/(N_thermalization+r)}.")
     return n_samples, l_samples
         
         

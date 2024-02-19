@@ -6,6 +6,12 @@
   'num_thermalization': 10_000
   ##### beta value for the heaviside fourier series
   'beta': 1_000_000
+  ##### maximum value of k for the heaviside fourier series
+  'max_k': 1_000
+##### number of samples for the monte carlo simulation during LCU sampling.
+'sampling Unitaries':
+  ##### number of iterations for monte carlo simlutaion to thermalize
+  'num_thermalization': 10_000
 ##### parameters for the binary search
 'binary search':
   ##### tolerance of the x-value error in the binary search
@@ -16,4 +22,7 @@
   'certification': 'mv'
 ##### pickle file which stores a pennylane Hamiltonian object, and a trial state (in the form of a vector)
 ##### the file has to be saved in the hamiltonians folder
-'hamiltonian file': 'H2.pkl'
+'hamiltonian':
+  'file': 'H2.pkl'
+  'norm_bound': 0.5 ##### in units of pi
+  'error_tolerance': 0.01
