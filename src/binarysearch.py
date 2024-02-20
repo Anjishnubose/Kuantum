@@ -8,6 +8,7 @@ def acdf(real_g: np.array, imag_g: np.array, sampled_index: np.array, S: float) 
     inputs: real_g, array of Re(Tr(rho U_k)) samples; imag_g, array of Im(Tr(rho U_k)) samples; sampled_index, array of k values of samples; S, normalization constant for importance sampling
     """  
     N_S = len(real_g)
+
     def H(x: float):
         g = 1/2 + 2 * S * (np.sum(real_g*np.sin(sampled_index*x)) + np.sum(imag_g*np.cos(sampled_index*x))) / N_S #build estimator for ACDF using sampled values from circuits
         return g

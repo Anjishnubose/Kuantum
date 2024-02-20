@@ -1,7 +1,8 @@
 import pennylane as qml
 import pennylane.numpy as np
+import numpy as num
 
-import pauli
+from pauli import reorder_pauli_rotation_products
 import LCUSampling
 
 #full H exponential
@@ -29,39 +30,44 @@ def prepare_initial_state(state_type = 'hf', start_wire=1, **kwargs):
         prepare_hf_gs(hf_list=hf_list, start_wire=start_wire)
     return
 
-def hadamard_test_randomized(H, n_qubits, n_samples, l_samples, t: float, r: int, measure = 'real', control_wires = [0]):
+def hadamard_test_pauli(pauli_product_red, pauli_product_phase):
+
+    return qml.s_prod(pauli_product_phase, pauli_product_red)
+
+def hadamard_test_rotations(n_samples, rotation_pauli, rotation_pauli_signs, t: float, r: int):
+    
+    #create vector for angles
+    angles = np.zeros(len(n_samples))
+    for i in range(len(angles)):
+        angles[i] = LCUSampling.theta(n_samples[i], t, r)
+
+    #create array to store Pauli rotations
+    rotations = []
+    for ir in range(len(rotation_pauli)):
+        rotations.append(qml.exp(rotation_pauli[ir], rotation_pauli_signs[ir] * angles[ir]* 1j))
+
+    return qml.prod(*rotations)
+
+def hadamard_test_randomized(pauli_prod, rotation, measure = 'real'):
     """
     Returns Hadamard test samples for randomized Hamiltonian evolution implementation
     
     """
-    # rotation_pauli, rotation_pauli_signs, pauli_product_red, pauli_product_phase = pauli.reorder_pauli_rotation_products(H, n_samples, l_samples)
-    control_wires = [n_qubits]
-    #create vector for angles
-    # angles = np.zeros(len(n_samples))
-    # for i in range(len(angles)):
-    #     angles[i] = LCUSampling.theta(n_samples[i], t, r)
 
-    #create array to store Pauli rotations
-    rotations = []
-    # for ir in range(len(rotation_pauli)):
-    #     rotations.append(qml.exp(rotation_pauli[ir], rotation_pauli_signs[ir] * angles[ir]* 1j))
-    # print(rotation_pauli)
-    #hamiltonian_matrix = qml.matrix(H)
-    wires = H.wires #target
-    qml.Hadamard(wires=control_wires)
-    # qml.ControlledQubitUnitary(qml.s_prod(pauli_product_phase, pauli_product_red), control_wires=control_wires, wires=wires)
-    # for p in range(len(rotations)):
-    #     qml.ControlledQubitUnitary(rotations[p], control_wires=control_wires, wires=wires)
-    # print(qml.matrix(qml.prod(*rotations)).shape)
-    # print(rotations)
-    # U = qml.prod(rotations)
-    # qml.ControlledQubitUnitary(qml.matrix(U), control_wires=control_wires, wires=U.wires)
+    control_wires = [0]
+    pauli_wires = list(num.array(pauli_prod.wires)+1)
+    rotation_wires = list(num.array(rotation.wires)+1)
+
+    qml.Hadamard(wires = control_wires)
+    qml.ControlledQubitUnitary(qml.matrix(pauli_prod), wires = pauli_wires, control_wires = control_wires) 
+    qml.ControlledQubitUnitary(qml.matrix(rotation), wires = rotation_wires, control_wires = control_wires)
 
     #real or imaginary
     if measure=='imag':
         qml.adjoint(qml.S(wires=control_wires))
 
     qml.Hadamard(wires=control_wires)
+
 
 def hadamard_test(U, n_qubits, measure='real', control_wires=[0]):
     """
@@ -104,13 +110,13 @@ def make_circuit(U, n_qubits, hf_list, measure='real'):
 
     return qml.sample(wires=[0])
 
-def make_circuit_randomized(H, n_qubits, hf_list, n_samples, l_samples, t: float, r: int, measure = 'real'):
+def make_circuit_randomized(pauli_prod, rotations, hf_list, measure = 'real'):
     control_wires = [0]
     #adds X gates to initialize psi
     prepare_initial_state(state_type='hf', hf_list=hf_list, start_wire=len(control_wires))
-    hadamard_test_randomized(H, n_qubits, n_samples, l_samples, t, r, measure, control_wires = control_wires)
+    hadamard_test_randomized(pauli_prod, rotations, measure)
 
-    return qml.sample(wires=[0])
+    return qml.sample(wires=control_wires)
 
 
 def get_gk(k, nk, hamiltonian, n_qubits, hf_list, tau, measure = 'real'):
@@ -145,16 +151,16 @@ def get_randomized_gk(H, k: int, nk:int, n_qubits: int, hf_list, n_samples, l_sa
     intializes hf basis ground state
     """
 
-    #list of Hamiltonian term coefficients (assuming Hamiltonian is written as linear combination of Paulis)
-    # pls = H.terms()[0]
-    # t = -k * tau * np.sum(np.abs(pls))
-
-    # n_samples, l_samples = LCUSampling.LCU(r, t, pls, N_thermalization, reduced_range, n_max)
-
+    #get Pauli rotations and products
+    rotation_pauli, rotation_pauli_signs, pauli_product_red, pauli_product_phase = reorder_pauli_rotation_products(H, n_samples, l_samples)
+    pauli = hadamard_test_pauli(pauli_product_red, pauli_product_phase)
+    rotations = hadamard_test_rotations(n_samples, rotation_pauli, rotation_pauli_signs, t, r)
     dev = qml.device("default.qubit", wires=n_qubits+1, shots=nk)
     circuit_qnode = qml.QNode(make_circuit_randomized, dev)
 
-    samples = circuit_qnode(H, n_qubits, hf_list, n_samples, l_samples, t, r, measure)
+    samples = circuit_qnode(pauli, rotations, hf_list, measure)
+    #fig, ax = qml.draw_mpl(circuit_qnode)(pauli, rotations, hf_list, measure) #to draw circuit
+    #fig.savefig("C:/Users/sstb2/Kuantum/figures/circuit.png")
     return 1-2*np.array(samples) #, exp_from_samples(samples)
 
 def get_rs_lists(nk_list, hamiltonian, n_qubits: int, hf_list, tau: float, r: int):
