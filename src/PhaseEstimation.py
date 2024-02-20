@@ -80,7 +80,7 @@ def StatisticalPhaseEstimation(inputs: dict, to_save: bool = False, save_path: s
     cdf = acdf(r_list, s_list, k_list, norm_k)
     print("Running the binary search to invert the CDF function.")
     ground_state = invert_cdf(r_list, s_list, k_list, 
-                                inputs['binary search']['delta'], inputs['bianry search']['eta'], 
+                                inputs['binary search']['delta'], inputs['binary search']['eta'], 
                                 norm_k, certify_type='mv') / decomposition['tau']
     print(f"The ground state energy estimate is: {ground_state}.")
     
