@@ -131,6 +131,7 @@ Decomposes the Hamiltonian into a sum of multi-qubit Pauli matrices.
 """
 def decompose(H: qml.Hamiltonian, norm_bound: float = np.pi/2, error_tol: float = 1E-2):
 
+    H = qml.pauli_decompose(qml.matrix(H))
     coefficients, operators = H.terms()
     n_qubits = len(H.wires)
     ##### bound on the norm of the Hamiltonian
