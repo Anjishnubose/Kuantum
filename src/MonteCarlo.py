@@ -41,8 +41,11 @@ def Metropolis(N_thermalization: int, N_sample: int, k_max: int,
         if k_new not in probabilities:
             probabilities[int(k_new)] = hv.heaviside_fourier_reduced_mp(k_new, k_max, beta)
         
-        p_accept = probabilities[int(k_new)] / probabilities[int(k_current)]
-        p_accept = min(1, p_accept)
+        if probabilities[int(k_current)] == 0:
+            p_accept = 1
+        else:
+            p_accept = probabilities[int(k_new)] / probabilities[int(k_current)]
+            p_accept = min(1, p_accept)
         ##### accept or reject the new state randomly
         if np.random.rand() < p_accept:
             ##### change is accepted!
