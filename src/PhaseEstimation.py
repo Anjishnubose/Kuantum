@@ -77,6 +77,8 @@ def StatisticalPhaseEstimation(inputs: dict, to_save: bool = False, save_path: s
             k_list.extend(np.array([k]*num_k))
     ##### Calculating the approximated CDF function
     print("Calculating the approximated CDF function.")
+    #convert k_list into np.array
+    k_list = np.array(k_list)
     cdf = acdf(r_list, s_list, k_list, norm_k)
     print("Running the binary search to invert the CDF function.")
     ground_state = invert_cdf(r_list, s_list, k_list, 
