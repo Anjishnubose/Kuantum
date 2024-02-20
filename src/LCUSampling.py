@@ -1,5 +1,5 @@
 import numpy as np
-import math as mt
+# import math as mt
 
 """
 normalize a list of Pauli coefficients to a probability distribution.
@@ -17,13 +17,31 @@ def sample_from_prob(pls: np.array, n: int) -> np.array:
 probability distribution to sample even integers from.
 """
 def qn(n: int, t: float, r:int) -> float:
-    return ((t/r)**n)/(mt.factorial(n))*np.sqrt(1+((t/r)/(n+1))**2)
+    return ((t/r)**n)/(n**n * np.exp(-n))*np.sqrt(1+((t/r)/(n+1))**2)
 
 """
 phases of pauli rotations to be used in the LCU sampling.
 """
 def theta(n: int, t: float, r: int) -> float:
     return np.arccos(1/(np.sqrt(1+((t/r)/(n+1))**2)))
+
+def LCU_wtMC(r: int, t: float, pls: np.array, qns: np.array,
+            ):
+
+    ##### empty lists to store the sampled n values
+    n_samples = np.zeros(r, dtype=int)
+    ##### empty list to store the sampled l-values for each n
+    l_samples = []
+    # print(f"Running Metropolis algorithm for {r} samples starting at n = {current_n}.")
+    for step in range(r):
+        n = np.random.choice(range(2, 2*len(qns)+2, 2), 1, replace=True, p=qns)      
+        n_samples[step] = int(n[0])
+        ##### sampling n+1 l-values from the probability distribution
+        ls = np.random.choice(len(pls), n+1, replace=True, p=pls)
+        l_samples.extend(ls)
+    # print(f"Sampling ns finished with acceptance rate: {accepted/(N_thermalization+r)}.")
+    return n_samples, l_samples
+
 
 """
 Function to sample even integers from the probability distribution q_n. 
@@ -40,7 +58,7 @@ args:
     
 """
 def LCU(r: int, t: float, pls: np.array,
-            N_thermalization: int = 10_000, reduced_range:int = 10, move_range:int = 20, n_max: int = 200
+            N_thermalization: int = 0, reduced_range:int = 10, move_range:int = 2, n_max: int = 10
             ):
     
     n_range = np.arange(2, n_max+1, 2)
@@ -82,14 +100,17 @@ if __name__ == "__main__":
     
     import matplotlib.pyplot as plt
     
-    r = 1_000
-    t = 1_000
-    pls = np.random.rand(100)
-    ns, ls = LCU(r, t, pls)
+    r = 50000
+    t = 500
+    pls = normalize_prob(np.random.rand(100))
+    qns = normalize_prob([qn(n, t, r) for n in range(2, 10, 2)])
+    ns, ls = LCU_wtMC(r, t, pls, qns)
+    # print(ns)
+    # print(ls)
     
-    plt.hist(ns)
-    plt.legend()
-    plt.xlabel(r'n')
-    plt.ylabel(r'f(n)')
-    plt.title("Sampling even integers from q_n")
-    plt.show()
+    # plt.hist(ns)
+    # plt.legend()
+    # plt.xlabel(r'n')
+    # plt.ylabel(r'f(n)')
+    # plt.title("Sampling even integers from q_n")
+    # plt.show()

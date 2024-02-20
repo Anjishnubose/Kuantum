@@ -19,7 +19,7 @@ def multiply_pauli_list_with_phase(pwds, reverse = False):
         final_phase *= phase
     return final_pwd, final_phase
 
-def reorder_pauli_rotation_products(H, l_list, n_list):
+def reorder_pauli_rotation_products(H, n_list, l_list):
     """
     simplify the circuit by pushing the Pauli word products to the end so now the circuit is rotations followed by single product
     
@@ -42,6 +42,7 @@ def reorder_pauli_rotation_products(H, l_list, n_list):
     hamiltonian_terms = H.terms()[1]
     hamiltonian_coeffs = H.coeffs
 
+    # print(l_list)
     for index in l_list:
         pauli_list.append(hamiltonian_terms[index])
         pauli_signs.append(np.sign(hamiltonian_coeffs[index]))
@@ -53,11 +54,13 @@ def reorder_pauli_rotation_products(H, l_list, n_list):
 
     pauli_product_red = qml.Identity(wires = n_qubits) #multiplied Pauli word
     pauli_product_phase = 1
+    
+    # print(l_list)
+    # print(n_list)
 
     for nr in n_list:
         #commute rotation through to start
         rotation_pauli.append(pauli_list[0])
-
         if qml.is_commuting(pauli_product_red, pauli_list[0]):
             rotation_pauli_signs.append(1*pauli_signs[0])
         else:

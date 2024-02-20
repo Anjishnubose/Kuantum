@@ -34,26 +34,28 @@ def hadamard_test_randomized(H, n_qubits, n_samples, l_samples, t: float, r: int
     Returns Hadamard test samples for randomized Hamiltonian evolution implementation
     
     """
-
     rotation_pauli, rotation_pauli_signs, pauli_product_red, pauli_product_phase = pauli.reorder_pauli_rotation_products(H, n_samples, l_samples)
-
+    control_wires = [n_qubits]
     #create vector for angles
-    angles = np.array(len(n_samples))
-    for i in angles:
+    angles = np.zeros(len(n_samples))
+    for i in range(len(angles)):
         angles[i] = LCUSampling.theta(n_samples[i], t, r)
 
     #create array to store Pauli rotations
-    rotations = np.array(len(rotation_pauli))
-    for r in len(rotation_pauli):
-        rotations[r] = qml.exp(rotation_pauli, rotation_pauli_signs[r] * angles[r]* 1j)
-    
+    rotations = []
+    for ir in range(len(rotation_pauli)):
+        rotations.append(qml.exp(rotation_pauli[ir], rotation_pauli_signs[ir] * angles[ir]* 1j))
+    # print(rotation_pauli)
     #hamiltonian_matrix = qml.matrix(H)
-    wires = [1 + a for a in range(n_qubits)] #target
-    
+    wires = H.wires #target
     qml.Hadamard(wires=control_wires)
-    qml.ControlledQubitUnitary(qml.sprod(pauli_product_phase, pauli_product_red), control_wires=control_wires, wires=wires)
-    for p in len(rotations):
-        qml.ControlledQubitUnitary(rotations[p], control_wires=control_wires, wires=wires)
+    # qml.ControlledQubitUnitary(qml.s_prod(pauli_product_phase, pauli_product_red), control_wires=control_wires, wires=wires)
+    # for p in range(len(rotations)):
+    #     qml.ControlledQubitUnitary(rotations[p], control_wires=control_wires, wires=wires)
+    # print(qml.matrix(qml.prod(*rotations)).shape)
+    # print(rotations)
+    # U = qml.prod(rotations)
+    # qml.ControlledQubitUnitary(qml.matrix(U), control_wires=control_wires, wires=U.wires)
 
     #real or imaginary
     if measure=='imag':
@@ -131,7 +133,7 @@ def get_gk(k, nk, hamiltonian, n_qubits, hf_list, tau, measure = 'real'):
     #qml.draw_mpl(circuit_qnode)(U, n_qubits=n_qubits, hf_list = hf_list, measure=measure) #to draw circuit
     return 1-2*np.array(samples), exp_from_samples(samples)
 
-def get_randomized_gk(H, k: int, nk:int, n_qubits: int, hf_list, samples_l, samples_n, t, r, measure = "real"):
+def get_randomized_gk(H, k: int, nk:int, n_qubits: int, hf_list, n_samples, l_samples, t, r, measure = "real"):
                     # N_thermalization: int = 10000, reduced_range: int = 10, move_range: int = 20, n_max: int = 200, r: int=1000):
     """
     Run state prep, hadamard test and get samples and ancilla expectation.
@@ -150,9 +152,9 @@ def get_randomized_gk(H, k: int, nk:int, n_qubits: int, hf_list, samples_l, samp
     # n_samples, l_samples = LCUSampling.LCU(r, t, pls, N_thermalization, reduced_range, n_max)
 
     dev = qml.device("default.qubit", wires=n_qubits+1, shots=nk)
-    circuit_qnode = qml.QNode(make_circuit_randomized,dev)
+    circuit_qnode = qml.QNode(make_circuit_randomized, dev)
 
-    samples = circuit_qnode(H, n_qubits, hf_list, samples_n, samples_l, t, r, measure = measure)
+    samples = circuit_qnode(H, n_qubits, hf_list, n_samples, l_samples, t, r, measure)
     return 1-2*np.array(samples) #, exp_from_samples(samples)
 
 def get_rs_lists(nk_list, hamiltonian, n_qubits: int, hf_list, tau: float, r: int):

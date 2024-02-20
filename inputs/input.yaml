@@ -11,7 +11,7 @@
 ##### number of samples for the monte carlo simulation during LCU sampling.
 'sampling Unitaries':
   ##### number of iterations for monte carlo simlutaion to thermalize
-  'num_thermalization': 10_000
+  'num_thermalization': 0
 ##### parameters for the binary search
 'binary search':
   ##### tolerance of the x-value error in the binary search
