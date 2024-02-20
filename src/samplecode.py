@@ -10,4 +10,4 @@ with open(input_file, 'r') as file:
 print(inputs)
 
 import PhaseEstimation as pe
-output  = pe.StatisticalPhaseEstimation(inputs)
+output  = pe.StatisticalPhaseEstimation_wtLCU(inputs, to_plot=True, plot_path='C:/Users/anjis/Documents/Kuantum/figures/plot.png')

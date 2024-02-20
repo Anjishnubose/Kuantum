@@ -35,7 +35,7 @@ def heaviside_fourier_reduced_mp(k: int, N: int, beta: float) -> np.float64:
         return (mp.besseli(j, beta) + mp.besseli(j+1, beta))/(k)
     ##### when k = N
     elif k == N and N%2 == 1:
-        j = N
+        j = int((N-1)/2)
         return (mp.besseli(j, beta))/(k)
     else:
         return 0.0

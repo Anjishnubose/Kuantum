@@ -34,24 +34,24 @@ def hadamard_test_randomized(H, n_qubits, n_samples, l_samples, t: float, r: int
     Returns Hadamard test samples for randomized Hamiltonian evolution implementation
     
     """
-    # rotation_pauli, rotation_pauli_signs, pauli_product_red, pauli_product_phase = pauli.reorder_pauli_rotation_products(H, n_samples, l_samples)
+    rotation_pauli, rotation_pauli_signs, pauli_product_red, pauli_product_phase = pauli.reorder_pauli_rotation_products(H, n_samples, l_samples)
     control_wires = [n_qubits]
     #create vector for angles
-    # angles = np.zeros(len(n_samples))
-    # for i in range(len(angles)):
-    #     angles[i] = LCUSampling.theta(n_samples[i], t, r)
+    angles = np.zeros(len(n_samples))
+    for i in range(len(angles)):
+        angles[i] = LCUSampling.theta(n_samples[i], t, r)
 
     #create array to store Pauli rotations
     rotations = []
-    # for ir in range(len(rotation_pauli)):
-    #     rotations.append(qml.exp(rotation_pauli[ir], rotation_pauli_signs[ir] * angles[ir]* 1j))
+    for ir in range(len(rotation_pauli)):
+        rotations.append(qml.exp(rotation_pauli[ir], rotation_pauli_signs[ir] * angles[ir]* 1j))
     # print(rotation_pauli)
-    #hamiltonian_matrix = qml.matrix(H)
+    hamiltonian_matrix = qml.matrix(H)
     wires = H.wires #target
     qml.Hadamard(wires=control_wires)
-    # qml.ControlledQubitUnitary(qml.s_prod(pauli_product_phase, pauli_product_red), control_wires=control_wires, wires=wires)
-    # for p in range(len(rotations)):
-    #     qml.ControlledQubitUnitary(rotations[p], control_wires=control_wires, wires=wires)
+    qml.ControlledQubitUnitary(qml.s_prod(pauli_product_phase, pauli_product_red), control_wires=control_wires, wires=wires)
+    for p in range(len(rotations)):
+        qml.ControlledQubitUnitary(rotations[p], control_wires=control_wires, wires=wires)
     # print(qml.matrix(qml.prod(*rotations)).shape)
     # print(rotations)
     # U = qml.prod(rotations)
@@ -157,7 +157,7 @@ def get_randomized_gk(H, k: int, nk:int, n_qubits: int, hf_list, n_samples, l_sa
     samples = circuit_qnode(H, n_qubits, hf_list, n_samples, l_samples, t, r, measure)
     return 1-2*np.array(samples) #, exp_from_samples(samples)
 
-def get_rs_lists(nk_list, hamiltonian, n_qubits: int, hf_list, tau: float, r: int):
+def get_rs_lists(nk_list, hamiltonian, n_qubits: int, hf_list, tau: float):
     """
     MAIN FUNCTION, USE THIS!
 
