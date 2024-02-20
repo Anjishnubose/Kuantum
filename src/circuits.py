@@ -34,17 +34,17 @@ def hadamard_test_randomized(H, n_qubits, n_samples, l_samples, t: float, r: int
     Returns Hadamard test samples for randomized Hamiltonian evolution implementation
     
     """
-    rotation_pauli, rotation_pauli_signs, pauli_product_red, pauli_product_phase = pauli.reorder_pauli_rotation_products(H, n_samples, l_samples)
+    # rotation_pauli, rotation_pauli_signs, pauli_product_red, pauli_product_phase = pauli.reorder_pauli_rotation_products(H, n_samples, l_samples)
     control_wires = [n_qubits]
     #create vector for angles
-    angles = np.zeros(len(n_samples))
-    for i in range(len(angles)):
-        angles[i] = LCUSampling.theta(n_samples[i], t, r)
+    # angles = np.zeros(len(n_samples))
+    # for i in range(len(angles)):
+    #     angles[i] = LCUSampling.theta(n_samples[i], t, r)
 
     #create array to store Pauli rotations
     rotations = []
-    for ir in range(len(rotation_pauli)):
-        rotations.append(qml.exp(rotation_pauli[ir], rotation_pauli_signs[ir] * angles[ir]* 1j))
+    # for ir in range(len(rotation_pauli)):
+    #     rotations.append(qml.exp(rotation_pauli[ir], rotation_pauli_signs[ir] * angles[ir]* 1j))
     # print(rotation_pauli)
     #hamiltonian_matrix = qml.matrix(H)
     wires = H.wires #target

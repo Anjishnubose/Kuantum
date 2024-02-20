@@ -28,18 +28,8 @@ def theta(n: int, t: float, r: int) -> float:
 def LCU_wtMC(r: int, t: float, pls: np.array, qns: np.array,
             ):
 
-    ##### empty lists to store the sampled n values
-    n_samples = np.zeros(r, dtype=int)
-    ##### empty list to store the sampled l-values for each n
-    l_samples = []
-    # print(f"Running Metropolis algorithm for {r} samples starting at n = {current_n}.")
-    for step in range(r):
-        n = np.random.choice(range(2, 2*len(qns)+2, 2), 1, replace=True, p=qns)      
-        n_samples[step] = int(n[0])
-        ##### sampling n+1 l-values from the probability distribution
-        ls = np.random.choice(len(pls), n+1, replace=True, p=pls)
-        l_samples.extend(ls)
-    # print(f"Sampling ns finished with acceptance rate: {accepted/(N_thermalization+r)}.")
+    n_samples = np.random.choice(range(2, 2*len(qns)+2, 2), r, replace=True, p=qns) 
+    l_samples = np.random.choice(len(pls), np.sum(n_samples)+r, replace=True, p=pls)
     return n_samples, l_samples
 
 
