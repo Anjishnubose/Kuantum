@@ -38,7 +38,7 @@ def StatisticalPhaseEstimation(inputs: dict, to_save: bool = False, save_path: s
             print(f"Running the phase estimation for k = {k}.")
             ##### parameters for the LCU sampling depending on the k-value
             t_k = -k*decomposition['tau']*decomposition['lambda']
-            r_k = int(np.ceil(-t_k))
+            r_k = int(np.ceil(t_k*t_k))
             
             qns = normalize_prob([qn(n, t_k, r_k) for n in range(2, 10, 2)])
             ##### LCU sampling to get a list of l-values for each k. 
@@ -97,9 +97,9 @@ def StatisticalPhaseEstimation(inputs: dict, to_save: bool = False, save_path: s
     output['r_list'] = r_list
     output['s_list'] = s_list
     output['k_list'] = k_list
+    output['norm_k'] = norm_k
     output['inputs'] = inputs
     output['ground_state'] = ground_state
-    output['CDF'] = cdf
     
     if to_save:
         with open(save_path, 'wb') as file:
@@ -169,9 +169,10 @@ def StatisticalPhaseEstimation_wtLCU(inputs: dict, to_save: bool = False, save_p
     output['r_list'] = r_list
     output['s_list'] = s_list
     output['k_list'] = k_list
+    output['norm_k'] = norm_k  
     output['inputs'] = inputs
     output['ground_state'] = ground_state
-    output['CDF'] = cdf
+    # output['CDF'] = cdf
     
     if to_save:
         with open(save_path, 'wb') as file:
