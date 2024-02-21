@@ -59,8 +59,9 @@ def hadamard_test_randomized(pauli_prod, rotation, measure = 'real'):
     rotation_wires = list(num.array(rotation.wires)+1)
 
     qml.Hadamard(wires = control_wires)
-    qml.ControlledQubitUnitary(qml.matrix(pauli_prod), wires = pauli_wires, control_wires = control_wires) 
     qml.ControlledQubitUnitary(qml.matrix(rotation), wires = rotation_wires, control_wires = control_wires)
+    qml.ControlledQubitUnitary(qml.matrix(pauli_prod), wires = pauli_wires, control_wires = control_wires) 
+    
 
     #real or imaginary
     if measure=='imag':
@@ -153,8 +154,9 @@ def get_randomized_gk(H, k: int, nk:int, n_qubits: int, hf_list, n_samples, l_sa
 
     #get Pauli rotations and products
     rotation_pauli, rotation_pauli_signs, pauli_product_red, pauli_product_phase = reorder_pauli_rotation_products(H, n_samples, l_samples)
-    pauli = hadamard_test_pauli(pauli_product_red, pauli_product_phase)
     rotations = hadamard_test_rotations(n_samples, rotation_pauli, rotation_pauli_signs, t, r)
+    pauli = hadamard_test_pauli(pauli_product_red, pauli_product_phase * (-1.0j)**(num.sum(n_samples)))
+
     dev = qml.device("default.qubit", wires=n_qubits+1, shots=nk)
     circuit_qnode = qml.QNode(make_circuit_randomized, dev)
 
