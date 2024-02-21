@@ -131,7 +131,7 @@ def get_gk(k, nk, hamiltonian, n_qubits, hf_list, tau, measure = 'real'):
 
     """
     
-    dev = qml.device("default.qubit", wires=n_qubits+1, shots=nk)
+    dev = qml.device("lightning.qubit", wires=n_qubits+1, shots=nk)
     circuit_qnode = qml.QNode(make_circuit,dev)
 
     U = get_U(H=hamiltonian, tau=tau, k=k)
@@ -157,7 +157,7 @@ def get_randomized_gk(H, k: int, nk:int, n_qubits: int, hf_list, n_samples, l_sa
     rotations = hadamard_test_rotations(n_samples, rotation_pauli, rotation_pauli_signs, t, r)
     pauli = hadamard_test_pauli(pauli_product_red, pauli_product_phase * (-1.0j)**(num.sum(n_samples)))
 
-    dev = qml.device("default.qubit", wires=n_qubits+1, shots=nk)
+    dev = qml.device("lightning.qubit", wires=n_qubits+1, shots=nk)
     circuit_qnode = qml.QNode(make_circuit_randomized, dev)
 
     samples = circuit_qnode(pauli, rotations, hf_list, measure)
