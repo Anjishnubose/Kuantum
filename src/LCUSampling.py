@@ -17,7 +17,7 @@ def sample_from_prob(pls: np.array, n: int) -> np.array:
 probability distribution to sample even integers from.
 """
 def qn(n: int, t: float, r:int) -> float:
-    return ((t/r)**n)/(n**n * np.exp(-n))*np.sqrt(1+((t/r)/(n+1))**2)
+    return ((t/r)**n)/(n**n * np.exp(-n) * np.sqrt(2*np.pi*n))*np.sqrt(1+((t/r)/(n+1))**2)
 
 """
 phases of pauli rotations to be used in the LCU sampling.
