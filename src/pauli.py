@@ -1,6 +1,7 @@
 #utils and methods with Pauli
 import pennylane as qml
 import pennylane.numpy as np
+import time
 #import LCUSampling
 
 def multiply_pauli_list_with_phase(pwds, reverse = False):
@@ -61,13 +62,19 @@ def reorder_pauli_rotation_products(H, n_list, l_list):
     for nr in n_list:
         #commute rotation through to start
         rotation_pauli.append(pauli_list[0])
+        start_time = time.time()
         if qml.is_commuting(pauli_product_red, pauli_list[0]):
             rotation_pauli_signs.append(1*pauli_signs[0])
         else:
             rotation_pauli_signs.append(-1*pauli_signs[0])
+        #print('Time for checking commutation: {}'.format(time.time() - start_time))
+
         
         #multiply paulis
+        start_time = time.time()
         pauli_product_red, phase = multiply_pauli_list_with_phase([pauli_product_red] + pauli_list[1:nr+1], reverse=True)
+        #print('Time for pauli product multiplication in reorder: {}'.format(time.time() - start_time))
+
         pauli_product_phase *= phase
         pauli_product_phase = np.product([pauli_product_phase] + pauli_signs[1:nr+1])
 
@@ -75,6 +82,29 @@ def reorder_pauli_rotation_products(H, n_list, l_list):
         pauli_signs = pauli_signs[nr + 1:]
 
     return rotation_pauli, rotation_pauli_signs, pauli_product_red, pauli_product_phase
+
+def get_Pauli_matrix(P, n_qubits):
+    wire_map = {i: i for i in range(n_qubits)}
+    return qml.pauli.pauli_word_to_matrix(P, wire_map=wire_map)
+
+def get_Pauli_Identity(n_qubits):
+    return get_Pauli_matrix(qml.Identity(n_qubits), n_qubits)
+
+def get_exp_Pauli(P, theta, n_qubits, return_matrix = True):
+    """
+    Exponentiate P as exp(i*theta*P) where P is a Pauli word
+    P: qml.Pauli object
+
+    return_matrix:: True for matrix rep over n_qubits
+    
+    """
+    if return_matrix == True:
+        I_matrix = get_Pauli_matrix(qml.Identity(n_qubits), n_qubits)
+        P_matrix = get_Pauli_matrix(P, n_qubits = n_qubits)
+        return np.cos(theta)*I_matrix + 1.j*np.sin(theta)*P_matrix
+    else:
+        I = qml.Identity(wires = n_qubits)
+        return np.cos(theta)*I + 1.j*np.sin(theta)*P
 
 # def full_pauli_rotation(H, rotation_pauli: np.array, rotation_pauli_signs: np.array, term_degree: np,array, t: float, r: int):
 #     """
@@ -96,5 +126,3 @@ def reorder_pauli_rotation_products(H, n_list, l_list):
 #     multiplied_rotation = qml.prod(*rotations)
 
 #     return multiplied_rotation
-
-    

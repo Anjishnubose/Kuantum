@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import pickle as pkl
 
 from heaviside import normalization_constant
-from circuits import get_randomized_gk, get_gk
+from circuits import get_randomized_gk, get_gk, get_randomized_gk_matrix
 from hamiltonians import read_hamiltonian, decompose
 from binarysearch import acdf, invert_cdf
 from MonteCarlo import Metropolis
@@ -46,7 +46,7 @@ def StatisticalPhaseEstimation(inputs: dict, to_save: bool = False, save_path: s
             samples_n, samples_l = LCU_wtMC(r_k, t_k, pls, qns)
             print(f"Sampling done.")
             ##### Running the randomly sample LCU decomposition of the time evolution on a quantum circuit.
-            r = get_randomized_gk(hamiltonian,
+            r = get_randomized_gk_matrix(hamiltonian,
                                 k,
                                 num_k,
                                 decomposition['num_qubits'], 
@@ -55,8 +55,9 @@ def StatisticalPhaseEstimation(inputs: dict, to_save: bool = False, save_path: s
                                 samples_l,
                                 t = t_k,
                                 r = r_k,
-                                measure='real')
-            s = get_randomized_gk(hamiltonian,
+                                measure='real', 
+                                tau = decomposition['tau'])
+            s = get_randomized_gk_matrix(hamiltonian,
                                 k,
                                 num_k,
                                 decomposition['num_qubits'], 
@@ -65,7 +66,8 @@ def StatisticalPhaseEstimation(inputs: dict, to_save: bool = False, save_path: s
                                 samples_l,
                                 t = t_k,
                                 r = r_k,
-                                measure='imag')
+                                measure='imag',
+                                tau = decomposition['tau'])
             print(f"Quantum circuit run for k = {k}.")
             if num_k==1:
                 r_list.extend(np.array([r]))
