@@ -7,7 +7,7 @@
   ##### beta value for the heaviside fourier series
   'beta': 1_000_000
   ##### maximum value of k for the heaviside fourier series
-  'max_k': 1_000
+  'max_k': 101
 ##### number of samples for the monte carlo simulation during LCU sampling.
 'sampling Unitaries':
   ##### number of iterations for monte carlo simlutaion to thermalize
