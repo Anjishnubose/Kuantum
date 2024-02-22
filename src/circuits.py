@@ -246,17 +246,13 @@ def get_randomized_gk_matrix(H, k: int, nk:int, n_qubits: int, hf_list, n_sample
     #verifying unitary
     U = get_U(H= H, tau = tau, k = k)
     Umatrix = pauli_matrix @ rotations_matrix
-    # print('Difference Norm:', np.linalg.norm(U - Umatrix))
-    # print('Norms: ', np.linalg.norm(U),  np.linalg.norm(Umatrix))
 
     start_time = time.time()
     dev = qml.device("lightning.qubit", wires=n_qubits+1, shots=nk)
     circuit_qnode = qml.QNode(make_circuit_randomized_matrix, dev)
-    # print('Time for making qnode: {}'.format(time.time() - start_time))
 
     start_time = time.time()
     samples = circuit_qnode(pauli_matrix, rotations_matrix, hf_list, n_qubits, measure)
-    # print('Time for making sampling: {}'.format(time.time() - start_time))
 
     return 1-2*np.array(samples)
 
