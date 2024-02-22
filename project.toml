@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = [
   { name="Anjishnu Bose", email="anjishnu.bose@mail.utoronto.ca" },
   { name = "Serene Shum", email = "serene.shum@mail.utoronto.ca"},
-  { name = "Praveen Jayakumar", email = ""}
+  { name = "Praveen Jayakumar", email = "praveen.jayakumar@mail.utoronto.ca"}
 ]
 description = "A library which estimates the spectrum of a Hamiltonian using statistical methods."
 readme = "README.md"
@@ -16,6 +16,8 @@ dependencies = [
   "pennylane>=0.34.0",
   "matplotlib",
   "openfermion",
+  "pyaml", 
+  "pickle"
 ]
 
 [project.urls]
