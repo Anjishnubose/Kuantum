@@ -3,7 +3,7 @@ import pennylane.numpy as np
 import matplotlib.pyplot as plt
 import yaml as yml
 
-
+##### Add absolute path to input file.
 input_file = 'C:/Users/anjis/Documents/Kuantum/inputs/input.yaml'
 with open(input_file, 'r') as file:
     inputs = yml.safe_load(file)
