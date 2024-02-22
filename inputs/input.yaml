@@ -23,6 +23,6 @@
 ##### pickle file which stores a pennylane Hamiltonian object, and a trial state (in the form of a vector)
 ##### the file has to be saved in the hamiltonians folder
 'hamiltonian':
-  'file': 'C:/Users/anjis/Documents/Kuantum/hamiltonians/H2.pkl'
+  'file': '/Users/praveenjayakumar/Documents/qhack/Kuantum/hamiltonians/H2.pkl'
   'norm_bound': 0.5 ##### in units of pi
   'error_tolerance': 0.01
