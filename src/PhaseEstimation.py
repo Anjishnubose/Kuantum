@@ -10,7 +10,7 @@ from binarysearch import acdf, invert_cdf
 from MonteCarlo import Metropolis
 from LCUSampling import LCU_wtMC, normalize_prob, qn
 
-
+##### LCU sampling with circuits generated once per k-value.
 def StatisticalPhaseEstimation(inputs: dict, to_save: bool = False, save_path: str = None, to_plot: bool = False, plot_path: str = None):
     ##### Read the Hamiltonian and the trial state from the destination given in the input file.
     hamiltonian, state = read_hamiltonian(inputs['hamiltonian']['file'])
@@ -109,7 +109,7 @@ def StatisticalPhaseEstimation(inputs: dict, to_save: bool = False, save_path: s
     
     return output
 
-
+##### LCU sampling with circuits generated randomly each time a k-value is sampled.
 def StatisticalPhaseEstimation_randomSampling(inputs: dict, 
                                             to_save: bool = False, save_path: str = None, 
                                             to_plot: bool = False, plot_path: str = None):
@@ -215,7 +215,7 @@ def StatisticalPhaseEstimation_randomSampling(inputs: dict,
 
     
     
-    
+##### Exact exponentiation of the Hamiltonian 
 def StatisticalPhaseEstimation_wtLCU(inputs: dict, to_save: bool = False, save_path: str = None, to_plot: bool = False, plot_path: str = None):
     ##### Read the Hamiltonian and the trial state from the destination given in the input file.
     hamiltonian, state = read_hamiltonian(inputs['hamiltonian']['file'])
