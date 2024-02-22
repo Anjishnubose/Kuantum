@@ -235,28 +235,28 @@ def get_randomized_gk_matrix(H, k: int, nk:int, n_qubits: int, hf_list, n_sample
     #get Pauli rotations and products
     start_time = time.time()
     rotation_pauli, rotation_pauli_signs, pauli_product_red, pauli_product_phase = reorder_pauli_rotation_products(H, n_samples, l_samples)
-    print('Time for matrix reorder: {}'.format(time.time() - start_time))
+    # print('Time for matrix reorder: {}'.format(time.time() - start_time))
     start_time = time.time()
     rotations_matrix = hadamard_test_rotations_matrix(n_samples, rotation_pauli, rotation_pauli_signs, t, r, n_qubits = n_qubits)
-    print('Time for matrix rotations: {}'.format(time.time() - start_time))
+    # print('Time for matrix rotations: {}'.format(time.time() - start_time))
     start_time = time.time()
     pauli_matrix = hadamard_test_pauli_matrix(pauli_product_red, pauli_product_phase * (-1.0j)**(num.sum(n_samples)), n_qubits = n_qubits)
-    print('Time for pauli product: {}'.format(time.time() - start_time))
+    # print('Time for pauli product: {}'.format(time.time() - start_time))
 
     #verifying unitary
     U = get_U(H= H, tau = tau, k = k)
     Umatrix = pauli_matrix @ rotations_matrix
-    print('Difference Norm:', np.linalg.norm(U - Umatrix))
-    print('Norms: ', np.linalg.norm(U),  np.linalg.norm(Umatrix))
+    # print('Difference Norm:', np.linalg.norm(U - Umatrix))
+    # print('Norms: ', np.linalg.norm(U),  np.linalg.norm(Umatrix))
 
     start_time = time.time()
     dev = qml.device("lightning.qubit", wires=n_qubits+1, shots=nk)
     circuit_qnode = qml.QNode(make_circuit_randomized_matrix, dev)
-    print('Time for making qnode: {}'.format(time.time() - start_time))
+    # print('Time for making qnode: {}'.format(time.time() - start_time))
 
     start_time = time.time()
     samples = circuit_qnode(pauli_matrix, rotations_matrix, hf_list, n_qubits, measure)
-    print('Time for making sampling: {}'.format(time.time() - start_time))
+    # print('Time for making sampling: {}'.format(time.time() - start_time))
 
     return 1-2*np.array(samples)
 
