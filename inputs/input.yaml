@@ -16,7 +16,7 @@
 'binary search':
   ##### tolerance of the x-value error in the binary search
   'delta': 0.001
-  ##### tolerance for the y-value jump in the binary search
+  ##### lower bound on overlap between initial state and ground state
   'eta': 0.5
   ##### certification type
   'certification': 'mv'
